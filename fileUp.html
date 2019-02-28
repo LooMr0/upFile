@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#303B4F">
+    <meta content="telephone=no" name="format-detection"/>
+    <meta content="email=no" name="format-detection"/>
+    <meta name="apple-mobile-web-app-title" content="took-web">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="x5-orientation" content="portrait"/>
+    <meta name="x5-fullscreen" content="true"/>
+    <meta name="x5-page-mode" content="app"/>
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="320">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="browsermode" content="application">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta name="msapplication-TileColor" content="#303B4F"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta name="robots" content="index,follow">
+    <title>发送文件</title>
+    <link rel="stylesheet" type="text/css" href="../../assets/css/weui.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/index.css">
+    <style>
+        [v-cloak]{
+            display: none;
+        }
+        #app {
+            height: 100%;
+            font-size: 6.5vw;
+            background-color: #fff;
+        }
+
+        html {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            -webkit-appearance: none;
+            -webkit-text-size-adjust: none;
+            -webkit-touch-callout: none;
+        }
+
+        .subText {
+            font-size: 12px;
+            color: #B2B2B2;
+        }
+
+        .selectedWrap {
+            display: flex;
+        }
+
+        .selectedWrap img {
+            width: 38px;
+            height: 30px;
+            margin: 0.61rem 0.5rem;
+        }
+
+        .selectedDetail {
+            flex: auto;
+            font-size: 14px;
+            padding-top: 0.3rem;
+        }
+
+        .addSelected {
+            flex: none;
+            width: 94px;
+            height: 55px;
+            text-align: center;
+            line-height: 55px;
+            background: url(../../assets/image/button2.png) no-repeat;
+            background-size: cover;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .fileList {
+            overflow: hidden;
+        }
+
+        .slide-content {
+            font-size: 0.7rem;
+            display: flex;
+            padding: 0.7rem 0.5rem;
+            box-sizing: border-box;
+        }
+
+        .fileIcon {
+            width: 41px;
+            height: 55px;
+            flex: none;
+        }
+
+        .fileInfo {
+            flex: none;
+            margin-left: 0.5rem;
+            line-height: 2;
+            width: 85%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .fileInfo>p:nth-child(1){
+            font-size: 16px;
+        }
+        input[type=file] {
+            display: none;
+        }
+
+        .fileUpdate {
+            background-color: #fff;
+            width: 80%;
+            height: 5.5rem;
+        }
+
+        .updateTip {
+            width: 100%;
+            text-align: center;
+            height: 3rem;
+            line-height: 3rem;
+            font-size: 12px;
+            color: #666666;
+        }
+
+        #speed {
+            width: 30%;
+            height: 100%;
+            background: #3ECA83;
+            color: white;
+            text-align: center;
+            line-height: 10px;
+            font-size: 12px;
+        }
+
+        .speed_box {
+            width: 90%;
+            margin: 0 5%;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            background: #E5E5E5;
+        }
+    </style>
+</head>
+<body data-api="https://subtest.xiuzhimeng.com/platform/api/web"
+      data-paramas="{&quot;wid&quot;:&quot;164&quot;,&quot;unid&quot;:&quot;178&quot;}"
+      data-accesstoken="8fe66e71cb9bf0762e08dae2267e3ab1"
+      data-wxauthorizeurl="https://subtest.xiuzhimeng.com/platform/frontend/authorize/wx?wid=164"
+      data-wxid="oPiIF1C5UuK1zI8QjtOO_RYJjUD8"
+      data-subscribe="1"
+      data-platformid="4"
+      data-csrftoken="gpaw3rfkLQkZLfpZtPruKqdHlFMZZn8Q4PXIBvcSKq3p1feP7rNae10arh_kk9170h3LGS1RR3e4lKFZvyoS5A==">
+<div id="app" v-cloak>
+    <div class="selectedWrap bottom-line">
+        <img src="../../assets/image/document2.png">
+        <div class="selectedDetail">
+            <p>已选{{sendFileList.length}}/{{maxSelect}}个文件</p>
+            <p class="subText">(pdf,txt,doc,ppt,xlsx)</p>
+        </div>
+        <div class="addSelected" @click="addFile">添加</div>
+    </div>
+    <div class="fileList">
+        <left-slide v-for="(item, index) in sendFileList" :key="index" :button="slideBtn"
+                    :params="[{id:item.id}]">
+            <div class="slide-content bottom-line" :data-id="item.id">
+                <img class="fileIcon" :src="'../../assets/image/file_'+fileType[item.suffix.substr(1)]+'.png'">
+                <div class="fileInfo">
+                    <p>{{item.title}}{{item.suffix}}</p>
+                    <p class="subText">{{item.size.toFixed(2)}}{{item.unit}}</p>
+                </div>
+            </div>
+        </left-slide>
+    </div>
+    <div class="bottomBtnWrap">
+        <div class="bottomBtn" @click="uploadCancel">取消</div>
+        <div class="bottomBtn" @click="uploadSend">发送</div>
+    </div>
+    <div class="js_dialog" style="opacity: 1;display: none;">
+        <div class="weui-mask"></div>
+        <div class="weui-dialog weui-skin_android fileUpdate">
+            <div class="updateTip upSuccese">已发送<span class="UpdatePercent"></span>,请稍候...</div>
+            <div class="updateTip upError" style="display: none;">上传失败,请重新选择文件!</div>
+            <div class="speed_box">
+                <div id="speed"></div>
+            </div>
+        </div>
+    </div>
+    <!--<span>accept=".doc, .docx, .xls, .txt, .ppt, .pptx, .xlsx" </span>-->
+    <input type="file" name="fileInput" id="fileInput" multiple>
+</div>
+</body>
+<script crossorigin="anonymous" integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f" src="https://lib.baomitu.com/jquery/3.2.1/jquery.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-DwsLA0O/He+RjlS7pFkqEHfsCgdTMU+nSuUq/qkxvKSTED+s4vRttKEZtf4xTW1+" src="https://lib.baomitu.com/vue/2.5.16/vue.min.js"></script>
+<script>
+    window.jQuery || document.write('<script src="assets/js/jquery-3.2.1.min.js"><\/script>');
+    window.Vue || document.write('<script src="assets/js/vue.min.js"><\/script>');
+</script>
+<script type="text/javascript" src="assets/js/jsmodern.min.js"></script>
+<script src="assets/js/left-slide.js?v=1"></script>
+<script src="assets/js/weui.min.js"></script>
+<script>
+    var isLazy = true;
+    var app = new Vue({
+        el: '#app',
+        data: {
+            maxSelect: 5,
+            sendFileList: [],
+            slideBtn: [
+                {
+                    name: '删除', bgColor: '#F85555', fontColor: '#fff', widthVW: 15, func: function (params) {
+                        app.sendFileList = app.sendFileList.filter(function (i) {
+                            return i.id != params.id;
+                        });
+                    }
+                }
+            ],
+            fileType: {
+                doc:'doc', docx:'doc', xls:'xls', xlsx:'xls', ppt:'ppt', pdf:'pdf', pptx:'ppt', txt:'txt'
+            }
+        },
+        mounted: function () {
+            this.initUpload();
+        },
+        methods: {
+            addFile: function () {
+                if (this.sendFileList.length >= this.maxSelect) {
+                    weui.topTips('文件个数已经达到上限!');
+                    return;
+                }
+                $('#fileInput').val("").click();
+            },
+            initUpload: function () {
+                var _this = this;
+                $('#fileInput').off('change').change(function () {
+                    if (!navigator.onLine) {
+                        weui.topTips("当前网络不佳~");
+                        return
+                    }
+                    for (i = 0; i < this.files.length; i++) {
+                        var file = this.files[i];
+                        var fileAccept = file.name.split(".").pop();
+                        var allowedType = ['doc', 'docx', 'pdf', 'ppt', 'pptx', 'xls', 'xlsx', 'txt'];
+                        if (allowedType.indexOf(fileAccept) === -1) {
+                            weui.topTips("文件类型暂不支持,请重新选择!");
+                            return
+                        }
+                        if (Math.round(file.size * 100 / (1024 * 1024)) / 100 >= 20) {
+                            weui.topTips('文件过大，超过20M。');
+                            return
+                        }
+                        $('.js_dialog').show();
+                        $('.upSuccese').show();
+                        $('.upError').hide();
+                        $("#speed").css({"width": "0%", "background": "#3ECA83"});
+                        $(".UpdatePercent").html("0%");
+                        xhr = $.ajaxSettings.xhr(); //创建并返回XMLHttpRequest对象的回调函数(jQuery中$.ajax中的方法)
+                        var timestamp = +new Date();
+                        var formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('name', 'file');
+                        $.ajax({
+                            type: 'POST',
+                            url: $('body').data('api') + '/file/upload-file',
+                            data: formData,
+                            cache: false, // 是否缓存
+                            async: true, // 是否异步执行
+                            processData: false,
+                            contentType: false,
+                            xhr: function () {
+                                if (_this.OnProgRess && xhr.upload) {
+                                    xhr.upload.addEventListener("progress", function(){
+                                        _this.OnProgRess(event, timestamp);
+                                    }, false);
+                                    xhr.upload.addEventListener("error", function(){
+                                        _this.updateError(event, timestamp);
+                                    }, false);
+                                    return xhr;
+                                }
+                            },
+                            success: function (res) {
+                                if (res.ok) {
+                                    $('.js_dialog').hide();
+                                    var finalFile = {
+                                        'id': timestamp,
+                                        'title': res.name,
+                                        'file': res.path,
+                                        'type': 24,
+                                        'size': res.size,
+                                        'unit': res.unit,
+                                        'suffix': res.type
+                                    }
+                                    _this.sendFileList.push(finalFile);
+                                } else {
+                                    $(".upSuccese").hide();
+                                    $(".upError").show().html(res.error);
+                                    $("#speed").css("background", "#FF422D");
+                                    setTimeout(function () {
+                                        $('.js_dialog').hide();
+                                    }, 2000);
+                                }
+                            }
+                        });
+                    }
+
+                });
+            },
+            uploadCancel: function () {
+                location.href = document.referrer;
+            },
+            uploadSend: function () {
+              alert(1)
+            },
+            //侦查附件上传情况 ,这个方法大概0.05-0.1秒执行一次
+            OnProgRess: function (event, timestamp) {
+                var that = this, event = event || window.event;
+                var loaded = Math.floor(100 * (event.loaded / event.total)); //已经上传的百分比
+                if (!navigator.onLine) {
+                    that.updateError(event, timestamp)
+                }else  if (loaded < 100) {
+                    $('.js_dialog').show();
+                }
+                console.log("已经上传：" + event.loaded); //已经上传大小情况(已上传大小，上传完毕后就 等于 附件总大小)
+                //console.log(event.total);  //附件总大小(固定不变)
+                $("#speed").css("width", loaded + "%");
+                $(".UpdatePercent").html(loaded + "%");
+            },
+            updateError:function(event, timestamp){
+                var that = this;
+                $("#speed").css({"width": "100%", "background": "#FF422D"});
+                $(".UpdatePercent").html("上传失败!");
+                that.sendFileList = that.sendFileList.filter(function (i) {
+                    return i.id != timestamp;
+                });
+                setTimeout(function () {
+                    $('.js_dialog').hide();
+                }, 1000);
+            },
+            getByte: function(size, unit) {
+                var radix = 1024;
+                var systems = {
+                    'B': { lower: false, upper: 'KB' },
+                    'KB': { lower: 'B', upper: 'MB' },
+                    'MB': { lower: 'KB', upper: 'GB' },
+                    'GB': { lower: 'MB', upper: false }
+                };
+                if (size >= radix) {
+                    if (systems[unit].upper) {
+                        size = size / radix;
+                        unit = systems[unit].upper;
+                        return this.getByte(size, unit);
+                    } else {
+                        return size.toFixed(2) + unit;
+                    }
+                } else if (size < 1) {
+                    if (systems[unit].lower) {
+                        size = size * radix;
+                        unit = systems[unit].lower;
+                        return this.getByte(size, unit);
+                    } else {
+                        return size.toFixed(2) + unit;
+                    }
+                } else {
+                    return size.toFixed(2) + unit;
+                }
+            },
+        }
+    });
+</script>
+</html>
